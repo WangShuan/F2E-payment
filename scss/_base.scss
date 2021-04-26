@@ -1,0 +1,33 @@
+body,
+html {
+  height: 100%;
+}
+
+a {
+  color: unset;
+  text-decoration: none;
+  &:hover {
+    color: $primary;
+  }
+}
+
+input[type='radio'] {
+  /* remove standard background appearance */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* create custom radiobutton appearance */
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  padding: 3px;
+  /* background-color only for content */
+  background-clip: content-box;
+  border: 1px solid #bbbbbb;
+  border-radius: 50%;
+}
+
+/* appearance for checked radiobutton */
+input[type='radio']:checked {
+  background-color: $primary;
+}
