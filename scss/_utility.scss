@@ -94,3 +94,16 @@
     color: #000;
   }
 }
+
+.with-errors {
+  font-family: NotoSansCJKtc-DemiLight;
+  font-size: 12px;
+  color: #c70000;
+  letter-spacing: 1.25px;
+}
+
+.form-group.has-error.has-danger input,
+.form-group.has-error.has-danger select {
+  border: 1px solid red;
+  box-shadow: 0 0 0 0.2rem rgba(250, 16, 0, 0.18);
+}

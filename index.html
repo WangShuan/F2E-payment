@@ -18,6 +18,7 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
     />
+
     <link rel="stylesheet" href="./css/all.min.css" />
   </head>
 
@@ -43,7 +44,12 @@
               <div class="l-order-detail-value">NT$ 600</div>
             </div>
           </div>
-          <button v-if="!finish" type="button" class="btn l-order-btn">
+          <button
+            v-if="!finish"
+            onclick="location.reload()"
+            type="button"
+            class="btn l-order-btn"
+          >
             返回商店
           </button>
         </div>
@@ -101,19 +107,17 @@
           <div v-else-if="step==2" class="payment-compose">
             <span class="payment-subtitle"> {{payment.title}} </span>
             <form
-              v-if="payment.title=='信用卡/金融卡'||payment.title=='銀聯卡'"
+              v-if="payment.title.indexOf('卡')!==-1"
               class="form"
-              @submit.stop.prevent="submitForm()"
+              novalidate
             >
               <div class="form-check form-check-inline mycheckMargin">
                 <input
                   type="radio"
                   id="pay1"
-                  name="payMethod"
-                  value="lumpsum"
+                  name="payMethod1"
                   class="mycheckboxMargin form-check-input"
-                  v-model="card.paymethods"
-                  required
+                  checked
                 />
                 <label class="form-check-label" for="pay1"> 一次付款 </label>
               </div>
@@ -121,11 +125,8 @@
                 <input
                   type="radio"
                   id="pay2"
-                  name="payMethod"
-                  value="installment"
+                  name="payMethod2"
                   class="mycheckboxMargin form-check-input"
-                  v-model="card.paymethods"
-                  required
                 />
                 <label class="form-check-label" for="pay2"> 分期付款 </label>
               </div>
@@ -137,51 +138,57 @@
                   <label v-else class="w-100">銀聯卡卡號 :</label>
                   <input
                     v-if="payment.title=='信用卡/金融卡'"
-                    type="tel"
+                    type="text"
                     class="custom-control ml-0"
                     v-model="cardNum"
                     required
+                    name="cardNum1"
                     minlength="4"
                     maxlength="4"
                     pattern="[3-5][0-9][0-9][0-9]$"
+                    data-error="請輸入正確卡號"
                   />
                   <input
                     v-else
-                    type="tel"
+                    type="text"
                     class="custom-control ml-0"
                     v-model="cardNum"
                     required
                     minlength="4"
                     maxlength="4"
                     pattern="^[6][2][0-9][0-9]$"
+                    data-error="請輸入正確卡號"
                   />
                   －
                   <input
-                    type="tel"
+                    type="text"
                     minlength="4"
                     maxlength="4"
                     pattern="[0-9]{4}"
                     required
                     class="custom-control"
+                    data-error="請輸入正確卡號"
                   />
                   －
                   <input
-                    type="tel"
+                    type="text"
                     required
                     minlength="4"
                     maxlength="4"
                     class="custom-control"
                     id="hideNum"
                     onkeyup="document.getElementById('hideNum').value=this.value.replace(/./g,'*');"
+                    data-error="請輸入正確卡號"
                   />
                   －
                   <input
-                    type="tel"
+                    type="text"
                     required
                     minlength="4"
                     maxlength="4"
                     pattern="[0-9]{4}"
                     class="custom-control mr-0"
+                    data-error="請輸入正確卡號"
                   />
                   <div
                     v-if="payment.title=='信用卡/金融卡'"
@@ -207,15 +214,16 @@
                     />
                   </div>
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <div class="form-group">
                 <div class="form-cardExpiryDate">
                   <label class="w-100">有效年月 :</label>
                   <select
                     class="custom-control ml-0"
-                    v-model="card.expiryDate.mm"
                     name="month"
                     required
+                    data-error="請選擇卡片有效月份"
                   >
                     <option value="">選擇</option>
                     <option v-for="i in 12" :value="i">{{i}}</option>
@@ -223,9 +231,9 @@
                   /
                   <select
                     class="custom-control"
-                    v-model="card.expiryDate.yy"
                     name="year"
                     required
+                    data-error="請選擇卡片有效年份"
                   >
                     <option value="">選擇</option>
                     <option value="2026">2026</option>
@@ -236,13 +244,14 @@
                   </select>
                   年
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <div class="form-group">
                 <div class="form-cardKey">
                   <label class="w-100">背面末三碼</label>
                   <input
-                    type="tel"
-                    data-error="請填寫三位數"
+                    type="text"
+                    data-error="請填寫背面安全碼"
                     required
                     class="custom-control"
                     minlength="3"
@@ -251,6 +260,7 @@
                   />
                   <img src="./image/card-key.svg" alt="icon" width="35.3px" />
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <div class="form-group">
                 <div class="form-email">
@@ -259,9 +269,10 @@
                     class="custom-control"
                     type="email"
                     required
-                    data-error="請填寫正確信箱地址"
+                    data-error="請輸入正確信箱地址"
                   />
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <div class="form-group form-mycheck-mb">
                 <div class="form-mycheck ml-4">
@@ -269,7 +280,7 @@
                     class="form-check-input form-mycheck-input"
                     type="checkbox"
                     id="check"
-                    data-error="您尚未打勾"
+                    data-error="請於核對資訊無誤後在此勾選"
                     required
                   />
                   <label
@@ -283,21 +294,18 @@
                     >第三方支付金流平台服務條款</a
                   >
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <div class="form-btnGroup">
                 <button class="btn btn-mythird" @click="step=1">
                   回上一步
                 </button>
-                <button class="btn btn-myprimary" type="submit">
+                <button class="btn btn-myprimary" @click="submitForm()">
                   確認付款
                 </button>
               </div>
             </form>
-            <form
-              v-else-if="payment.title=='超商付款'"
-              class="form"
-              @submit.stop.prevent="submitForm()"
-            >
+            <form v-else-if="payment.title=='超商付款'" class="form" novalidate>
               <div class="form-group shop-margin">
                 <div class="form-shop">
                   <label class="w-100">付款超商 :</label>
@@ -305,6 +313,7 @@
                     class="custom-control ml-0"
                     v-model="shopDetail[0].value"
                     required
+                    data-error="請選擇付款超商"
                   >
                     <option value="">選擇</option>
                     <option value="統一超商">統一超商</option>
@@ -313,6 +322,7 @@
                     <option value="OK超商">OK超商</option>
                   </select>
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <div class="form-group shop-margin">
                 <div class="form-email">
@@ -324,6 +334,7 @@
                     data-error="請填寫正確信箱地址"
                   />
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <div class="form-group shop-mycheck-mb">
                 <div class="form-mycheck ml-4">
@@ -345,21 +356,18 @@
                     >第三方支付金流平台服務條款</a
                   >
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <div class="form-btnGroup">
                 <button class="btn btn-mythird" @click="step=1">
                   回上一步
                 </button>
-                <button class="btn btn-myprimary" type="submit">
+                <button class="btn btn-myprimary" @click="submitForm()">
                   確認付款
                 </button>
               </div>
             </form>
-            <form
-              v-else
-              class="form-atm form"
-              @submit.stop.prevent="submitForm()"
-            >
+            <form v-else class="form-atm form" novalidate>
               <div class="form-group atm-margin">
                 <div class="form-atm-bank">
                   <label class="w-100">付款銀行 :</label>
@@ -367,6 +375,7 @@
                     class="custom-control ml-0"
                     v-model="atmDetail[0].value"
                     required
+                    data-error="請選擇付款銀行"
                   >
                     <option value="">選擇</option>
                     <option value="富邦銀行">富邦銀行</option>
@@ -375,6 +384,7 @@
                     <option value="國泰世華">國泰世華</option>
                   </select>
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <ul v-if="payment.title=='Web ATM'" class="form-atm-desc">
                 <li>
@@ -396,6 +406,7 @@
                     data-error="請填寫正確信箱地址"
                   />
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <div class="form-group atm-mycheck-mb">
                 <div class="form-mycheck ml-4">
@@ -417,12 +428,13 @@
                     >第三方支付金流平台服務條款</a
                   >
                 </div>
+                <div class="help-block with-errors"></div>
               </div>
               <div class="form-btnGroup">
                 <button class="btn btn-mythird" @click="step=1">
                   回上一步
                 </button>
-                <button class="btn btn-myprimary" type="submit">
+                <button class="btn btn-myprimary" @click="submitForm()">
                   確認付款
                 </button>
               </div>
@@ -462,7 +474,10 @@
               </button>
             </div>
           </div>
-          <div v-else class="payment-finishImg">
+          <div
+            v-else-if="step==3&&payment.title.indexOf('卡')!==-1"
+            class="payment-finishImg"
+          >
             <div
               class="payment-finishImg-bg animate__animated animate__bounceIn"
             >
@@ -476,7 +491,7 @@
               稍後將寄送訂單詳細資訊至您的E-mail
             </span>
             <div class="w-100">
-              <button class="btn btn-myprimary" onclick="location.reload();">
+              <button class="btn btn-myprimary" onclick="location.reload()">
                 返回首頁
               </button>
             </div>
@@ -487,7 +502,7 @@
         <button
           type="button"
           class="btn footer-btn"
-          onclick="location.reload();"
+          onclick="location.reload()"
         >
           返回商店
         </button>
@@ -495,11 +510,8 @@
     </div>
 
     <!-- Bootstrap -->
-    <script
-      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
       integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
@@ -510,6 +522,9 @@
       integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
       crossorigin="anonymous"
     ></script>
+    <!-- bootstrap-validator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/1000hz-bootstrap-validator/0.11.9/validator.min.js"></script>
+
     <!-- vue.js -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.js"></script>
     <!-- myjs -->

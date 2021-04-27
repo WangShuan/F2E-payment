@@ -41,11 +41,6 @@ var app = new Vue({
     stepTitle: 'STEP1. 選擇付款方式',
     step: 1,
     payment: '',
-    card: {
-      paymethods: 'lumpsum',
-      type: '',
-      expiryDate: { mm: '', yy: '' },
-    },
     cardNum: '',
     finish: false,
     shopDetail: [
@@ -79,9 +74,6 @@ var app = new Vue({
     show: false,
   },
   watch: {
-    payment: function () {
-      console.log(this.payment);
-    },
     step: function () {
       if (this.step == 1) {
         this.stepTitle = 'STEP1. 選擇付款方式';
@@ -92,6 +84,7 @@ var app = new Vue({
         this.finish = true;
       } else {
         this.stepTitle = '您的訂單已完成付款！';
+        this.finish = true;
       }
     },
   },
@@ -122,12 +115,22 @@ var app = new Vue({
       }
     },
     submitForm() {
-      if (this.payment.title == '超商付款') {
-        this.shopDetail[1].value = Math.random()
+      const vm = this;
+      $('.form')
+        .validator()
+        .on('submit', function (e) {
+          if (e.isDefaultPrevented()) {
+            return;
+          } else {
+            vm.step = 3;
+          }
+          e.preventDefault();
+        });
+      if (vm.payment.title == '超商付款') {
+        vm.shopDetail[1].value = Math.random()
           .toString(36)
           .substr(2)
           .toUpperCase();
-
         var d = new Date();
         d.setDate(d.getDate() + 3);
         let mm = d.getMonth() + 1;
@@ -135,29 +138,25 @@ var app = new Vue({
           mm = '0' + mm;
         }
         const ret = d.getFullYear() + '-' + mm + '-' + d.getDate();
-
-        this.shopDetail[2].value = ret + ' 23:59:59';
-      } else if (this.payment.title.indexOf('ATM') !== -1) {
-        if (this.atmDetail[0].value == '玉山銀行') {
-          this.atmDetail[0].link =
+        vm.shopDetail[2].value = ret + ' 23:59:59';
+      } else if (vm.payment.title.indexOf('ATM') !== -1) {
+        if (vm.atmDetail[0].value == '玉山銀行') {
+          vm.atmDetail[0].link =
             'https://netbank.esunbank.com.tw/webatm/#/login';
-        } else if (this.atmDetail[0].value == '國泰世華') {
-          this.atmDetail[0].link = 'https://www.mybank.com.tw/mywebatm/main';
-        } else if (this.atmDetail[0].value == '中國信託') {
-          this.atmDetail[0].link = 'https://eatm.ctbcbank.com/WebATM/';
-        } else if (this.atmDetail[0].value == '富邦銀行') {
-          this.atmDetail[0].link =
+        } else if (vm.atmDetail[0].value == '國泰世華') {
+          vm.atmDetail[0].link = 'https://www.mybank.com.tw/mywebatm/main';
+        } else if (vm.atmDetail[0].value == '中國信託') {
+          vm.atmDetail[0].link = 'https://eatm.ctbcbank.com/WebATM/';
+        } else if (vm.atmDetail[0].value == '富邦銀行') {
+          vm.atmDetail[0].link =
             'https://ebank.taipeifubon.com.tw/EXT/common/CWA/Index.faces';
         }
         var d = new Date();
         d.setDate(d.getDate() + 3);
-
         const ret =
           d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-
-        this.atmDetail[2].value = ret + ' 23:59:59';
+        vm.atmDetail[2].value = ret + ' 23:59:59';
       }
-      this.step = 3;
     },
   },
 });
